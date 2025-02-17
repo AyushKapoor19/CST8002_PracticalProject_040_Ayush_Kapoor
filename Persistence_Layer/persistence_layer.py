@@ -23,14 +23,13 @@ def load_csv(file_path):
         with open(file_path, mode='r') as file:
             csv_reader = csv.DictReader(file)
             for row in csv_reader:
-                # Ensure correct argument names and types
                 record = TrafficDataRecord(
                     CSDUID=row['CSDUID'].strip(),
                     CSD=row['CSD'].strip(),
-                    Period=int(row['Period'].strip()),  # Convert to int
+                    Period=int(row['Period'].strip()),
                     IndicatorSummaryDescription=row['IndicatorSummaryDescription'].strip(),
                     UnitOfMeasure=row['UnitOfMeasure'].strip(),
-                    OriginalValue=float(row['OriginalValue'].strip())  # Convert to float
+                    OriginalValue=float(row['OriginalValue'].strip())
                 )
                 records.append(record)
     except FileNotFoundError:
@@ -50,16 +49,12 @@ def save_csv(records):
         A list of TrafficDataRecord objects to save.
     """
     try:
-        # Generate a unique filename using UUID
         unique_filename = f"traffic_data_{uuid.uuid4().hex}.csv"
         
-        # Get the current working directory
         current_directory = os.getcwd()
         
-        # Combine the current directory with the unique filename
         full_file_path = os.path.join(current_directory, unique_filename)
 
-        # Open the file and write the records
         with open(full_file_path, mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['CSDUID', 'CSD', 'Period', 'IndicatorSummaryDescription', 'UnitOfMeasure', 'OriginalValue'])

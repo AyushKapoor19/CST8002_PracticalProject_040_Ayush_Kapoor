@@ -1,55 +1,84 @@
-"""
-Unit tests for TrafficDataManager.
-
-Author: Ayush Kapoor
-"""
-
 import unittest
-from Business_Layer.business_layer import TrafficDataManager
-from Model_Layer.TrafficDataRecord import TrafficDataRecord
+from Business_Layer.business_layer import TrafficDataManager, TrafficDataRecord
 
 class TestTrafficDataManager(unittest.TestCase):
 
     def setUp(self):
         """
-        Set up the test environment by initializing a TrafficDataManager
-        with a small set of test data.
+        Set up a TrafficDataManager with sample test data.
         """
-        self.manager = TrafficDataManager('traffic-data.csv')
+        self.manager = TrafficDataManager('dailyvehiclesdownload.csv')
         self.manager.records = [
-            TrafficDataRecord("4805026", "Drumheller", "2000", "Daily Vehicles (per km of road)", "", "2440.67151"),
-            TrafficDataRecord("4805026", "Drumheller", "2001", "Daily Vehicles (per km of road)", "", "2328.48399"),
+            TrafficDataRecord("4805026", "Drumheller", "2000", "Daily Vehicles", "", 2440.67),
+            TrafficDataRecord("4805026", "Drumheller", "2001", "Daily Vehicles", "", 2328.48)
         ]
 
-    def test_add_record(self):
+    def test_get_record_valid(self):
         """
-        Test if the program correctly adds a new traffic data record.
+        Test getting a valid record by index.
         """
-        new_record = TrafficDataRecord("4805026", "Drumheller", "2002", "Daily Vehicles (per km of road)", "", "1482.75917")
-        self.manager.add_record(new_record)
+        record = self.manager.get_record(1)
+        self.assertEqual(record.CSD, "Drumheller")
+        self.assertEqual(record.Period, "2001")
 
-        self.assertEqual(len(self.manager.records), 3)
-        self.assertEqual(self.manager.get_record(2).csduid, "4805026")
-        self.assertEqual(self.manager.get_record(2).csd, "Drumheller")
-        self.assertEqual(self.manager.get_record(2).period, "2002")
-        self.assertEqual(self.manager.get_record(2).indicator_summary, "Daily Vehicles (per km of road)")
-        self.assertEqual(self.manager.get_record(2).unit_of_measure, "")
-        self.assertEqual(self.manager.get_record(2).original_value, "1482.75917")
+    def test_get_record_invalid_index(self):
+        """
+        Test getting a record with an out-of-range index.
+        """
+        with self.assertRaises(IndexError):
+            self.manager.get_record(5)
 
-    def test_update_record(self):
+    def test_add_invalid_record(self):
         """
-        Test if the program correctly updates an existing traffic data record.
+        Test adding an invalid record (not a TrafficDataRecord).
         """
-        updated_record = TrafficDataRecord("4805026", "Drumheller", "2000", "Daily Vehicles (per km of road)", "", "2500.00000")
+        with self.assertRaises(TypeError):
+            self.manager.add_record(["Invalid", "Record"])
+
+    def test_update_record_valid(self):
+        """
+        Test updating an existing record.
+        """
+        updated_record = TrafficDataRecord("4805026", "Drumheller", "2000", "Daily Vehicles", "", 2500.00)
         self.manager.update_record(0, updated_record)
-        record = self.manager.get_record(0)
 
-        self.assertEqual(record.csduid, "4805026")
-        self.assertEqual(record.csd, "Drumheller")
-        self.assertEqual(record.period, "2000")
-        self.assertEqual(record.indicator_summary, "Daily Vehicles (per km of road)")
-        self.assertEqual(record.unit_of_measure, "")
-        self.assertEqual(record.original_value, "2500.00000")
+        self.assertEqual(float(self.manager.records[0].OriginalValue), 2500.00)
+
+    def test_update_invalid_record_type(self):
+        """
+        Test updating a record with an invalid type.
+        """
+        with self.assertRaises(TypeError):
+            self.manager.update_record(0, ["Invalid", "Record"])
+
+    def test_update_record_out_of_bounds(self):
+        """
+        Test updating a record at an invalid index.
+        """
+        updated_record = TrafficDataRecord("4805026", "Drumheller", "2023", "Daily Vehicles", "", 3000.00)
+        with self.assertRaises(ValueError):
+            self.manager.update_record(10, updated_record)
+
+    def test_delete_record_valid(self):
+        """
+        Test deleting a record successfully.
+        """
+        self.manager.delete_record(0)
+        self.assertEqual(len(self.manager.records), 1)
+
+    def test_delete_record_out_of_bounds(self):
+        """
+        Test deleting a record at an invalid index.
+        """
+        with self.assertRaises(IndexError):
+            self.manager.delete_record(10)
+
+    def test_delete_record_invalid_index(self):
+        """
+        Test deleting a record with an invalid index type.
+        """
+        with self.assertRaises(TypeError):
+            self.manager.delete_record("one")
 
 if __name__ == '__main__':
     unittest.main()

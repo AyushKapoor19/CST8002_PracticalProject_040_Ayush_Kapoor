@@ -43,7 +43,6 @@ class TrafficDataRecord:
         self.IndicatorSummaryDescription = IndicatorSummaryDescription
         self.UnitOfMeasure = UnitOfMeasure
 
-        # Ensure OriginalValue is a valid float
         try:
             self.OriginalValue = float(OriginalValue)
         except ValueError:
